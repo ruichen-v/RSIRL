@@ -22,7 +22,7 @@ T = 10; % number of time steps in gradient ascent
 
 k_delay = 3; % offset (tune it manually)
 
-check_offset = false;
+check_offset = true;
 load_means = true;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -76,7 +76,7 @@ u = {};
 for i=1:numExps
     u{i} = u_expert(:,(i-1)*K+1:i*K);
 end
-[data.u, data.opt_action] = map_actions(u, means_1);
+[data.u, data.opt_action] = map_actions(u, means_1); % u:action id, opt_action: actual op seq
 
 %% Initialize polytope parameterization and dynamics
 parameterized_polytope;

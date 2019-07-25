@@ -7,6 +7,7 @@ load(['Data/robot_data_10Hz_', name_str,'_train.mat']);
 x_enforced = state_robot(1,:);
 y_enforced = state_robot(3,:);
 
+% adjust coordinate
 x_l = x_l + 140.;
 y_l = -(y_l - 3.);
 x_f = x_f + 140;
@@ -14,15 +15,16 @@ y_f = -(y_f - 3.);
 vy_f = -vy_f;
 ay_f = -ay_f;
 
-tt = length(x_l);
-tt = tt - mod(tt, 6);
-nn = tt/6 - 5*K;
-nn = nn - mod(nn, K);
+tt = length(x_l); % origin length
+tt = tt - mod(tt, 6); % 6*data(10hz)
+nn = tt/6 - 5*K; % 10hz length, prune last 5 stages
+nn = nn - mod(nn, K); % round to int # of stages (Z*K) [54 stages, 810 frames 10hz]
 
-prune = 1+ss*K + overlap;
+prune = 1+ss*K + overlap; % index of first frame of first stage (prepare)
 x_l_d = zeros(1, nn-prune+1);
 y_l_d = zeros(1, nn-prune+1);
 
+% align downsampled user-robot data with enforced robot xy trajectory
 for i=1:nn-prune+1
     x_l_d(1,i) = x_l( (i+prune-1-k_delay-1)*6+1) ;
     y_l_d(1,i) = y_l( (i+prune-1-k_delay-1)*6+1) ;
@@ -32,7 +34,7 @@ if (check_offset)
     plot(prune:nn, y_enforced(prune:nn), 'r');
     hold on;
     plot(prune:nn, y_l_d, 'b');
-    save(['Data/Inference/Means/k_delay_train_',name_str,'.mat'], 'k_delay');
+    %save(['Data/Inference/Means/k_delay_train_',name_str,'.mat'], 'k_delay');
     keyboard;
 end
 
@@ -58,7 +60,7 @@ u_s = delta_f_dot;
 u_s_d = zeros(1, nn-prune+1);
 u_a_d = zeros(1, nn-prune+1);
 for i=1:nn-prune+1
-    u_s_d(1,i) = u_s( (i+prune-1-k_delay-1)*6+1) ;
+    u_s_d(1,i) = u_s( (i+prune-1-k_delay-1)*6+1) ; % [tgt frame id]*6 + 1
     u_a_d(1,i) = u_a( (i+prune-1-k_delay-1)*6+1) ;
 end
 
@@ -97,7 +99,7 @@ disturbances.list{3} = -dec_factor*[accelerate; zeros(1,K)];
 turn_right = [44.117 25.21 9.211 -3.878 -14.05 -21.33 -25.69 -27.14 -25.69 -21.33 -14.05 -3.878 9.211 25.21 44.117];
 disturbances.list{4} = [zeros(1,K); -turn_right]; % turn left 
 disturbances.list{5} = [zeros(1,K); turn_right]; % turn right
-disturbances.last = js_noise(ss+1) +1 ;
+disturbances.last = js_noise(ss+1) +1 ; % id of first disturbance after ss (+1 due to 1-indexing)
 dist_last = js_noise(ss+1:ss+numExps) + 1;
 for i=1:length(dist_last)
     if dist_last(i) == 5
