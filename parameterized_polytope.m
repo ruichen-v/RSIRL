@@ -42,6 +42,9 @@ LP_prob = setup_LP_yalmip(L,A,b);
 %call once to setup warm start
 LP_sol = struct('sol',0);
 %[~,~,LP_sol] = compute_LP_tomlab(LP_prob,randn(L,1),kron(ones(1,M),b),M,L,LP_sol);
+
+% Jointly solves CRM p^r(Z) w.r.t. multiple Pr
 [~,~,LP_sol] = compute_LP_yalmip(LP_prob,randn(L,1),kron(ones(1,M),b),M,L);
+                            % (problem, costs (L), M offset settings, 8, 4)
 
 

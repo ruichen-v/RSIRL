@@ -1,10 +1,14 @@
-function [tau, D_tau_w, D_tau_wc] = est_tau(x, u, k, M, dynamics, disturbances,dist_last, counter, P_w, V_w, u_disc, w_c, beta, grad_compute, par, LP_sol, LP_prob)
+function [tau, D_tau_w, D_tau_wc] = est_tau(x, u, k, M, dynamics, disturbances,dist_last,...
+                            counter, P_w, V_w, u_disc, w_c, beta, grad_compute, par, LP_sol, LP_prob)
+                        % x: first frame of stage
+                        % u: expert action sequence
+                        % k: look-ahead step
 %% parameters 
 n = par(1); L = par(3); N = par(4); K = par(5);
 %% compute next trajectory for each disturbance realization
 x_fwd = zeros(n, K+1, L);
 
-disturbances.last = dist_last;
+disturbances.last = dist_last; % disturbance at t'-1
 %j_repeat = dist_last;
 for j=1:L
     robot_action = get_robot_action(disturbances, j, K, counter);

@@ -23,12 +23,13 @@ V_w = P_w.minVRep().V;
 P_w_data = struct('A',A,'b',b-w);
 
 %compute gradient of log-likelihood
-parfor j=1:numExps
+for j=1:numExps
     i = Idx_do(j);
-    x_obs = x_expert(:,(i-1)*K+1);
+    x_obs = x_expert(:,(i-1)*K+1); % first frame of each stage
     counter = counters(i); % indicates if robot on left or right lane
-    a_obs = a_expert(i,1);
+    a_obs = a_expert(i,1); % human action at beginning of stage
     
+    % CRM of each possible expert action at current stage (under history of w and u)
     [~, tau, ~, ~, ~, ~] = est_H(x_obs, 0, M, dynamics, disturbances, dist_last(i),...
         counter, P_w_data, V_w, u_disc, w_c, beta, 0, par, LP_sol, LP_prob);
     

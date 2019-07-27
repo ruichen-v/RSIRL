@@ -22,7 +22,7 @@ T = 10; % number of time steps in gradient ascent
 
 k_delay = 3; % offset (tune it manually)
 
-check_offset = true;
+check_offset = false;
 load_means = true;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -85,6 +85,8 @@ par(3) = L;
 %% Parameters for gradient ascent
 alpha = 0.7;
 mask = [1,1];
+
+% initial offset b
 w_initial = [0.970942973174348
    0.861734604362476
    0.184879392473038
@@ -95,10 +97,12 @@ w_initial = [0.970942973174348
    0.025613996835515
 ];
 %w_initial = 0.15*ones(M,1);
+% force constraints to be active if too loose
 w_initial = tighten(w_initial, A, b, L);
 disp('w_initial inside P_proj:');
 disp(P_proj.contains(w_initial));
 
+% initial feature weights
 wc_initial = [0.029449850218653
    0.350030083691099
    0.305069896997852
