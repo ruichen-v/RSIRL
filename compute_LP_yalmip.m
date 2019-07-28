@@ -18,6 +18,6 @@ q_opt_mat = reshape(q_opt_vec,L,M); % q that maximizes CRM under M offsets b (di
 
 % if (~infeas)
 sol.sol = 1;
-rho = q_opt_mat'*costs;
+rho = q_opt_mat'*costs; % CRM w.r.t. different boundary offsets b
 
 end

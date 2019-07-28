@@ -42,14 +42,16 @@ else
             counter_ = -counter; % change sign of counter
         end
         %recursive call
-        x_j = x_fwd(:,:,j);
+        x_j = x_fwd(:,:,j); % 16 steps, last step as 1st step of next stage
         disturbances.last = j;
         [cost_to_go, ~, ~, D_cost_w(:,j),~,D_cost_wc(:,j)] = est_H(x_j(:,end), k+1, M, dynamics, disturbances, j,...
                     counter_, P_w, V_w, u_disc, w_c, beta,grad_compute, par, LP_sol, LP_prob);
         %net cost                            
         [costs(j), features(:,j)] = compute_cost(x_j, dynamics, u, w_c, K);
         costs(j) = costs(j) + cost_to_go;
-    end   
+        % costs(j): cost of action u under dist j
+        % cost_to_go: tail RS cost given action u and dist j
+    end
     %{
     costs(L) = costs(j_repeat);
     features(:,L) = features(:,j_repeat);
@@ -60,7 +62,10 @@ end
 
 %% now evaluate risk-sensitive cost
 b_w = P_w.b;
+
+% costs: conditional CRM under each disturbance for same action u
 [tau,idx] = max(V_w*costs);
+% solves tau for current stage with action u exactly
 
 %% compute gradients 
 D_tau_w = zeros(M,1);
@@ -70,8 +75,16 @@ eps = 1e-3;
 I_M = eye(M);
 
 if (grad_compute) 
-    %derivative due to change in constraints
+    % derivative due to change in constraints
+    
+    % Solve D_tau_w
+    % solve the same problem with each of r_j disturbed to get tau'
+    % tau' = tau + e*D_tau_b = tau - e*D_tau_w (w is r)
     [tau_pert,~,~] = compute_LP_yalmip(LP_prob,costs,kron(ones(1,M),b_w)+eps*I_M,M,L);
+    % alternatively, get V_w for each disturbed envolope, then solve grad
+    % for each entry in D_tau_w, however that is cumbersome. Thus we call
+    % yalmip LP solver to directly solve all (M) problems.
+    
     %[tau_pert, ~, ~] = compute_LP_tomlab(LP_prob,costs,kron(ones(1,M),b_w)+eps*I_M,M,L,LP_sol);
     D_tau_w = (tau_pert - tau)/(-eps);
     
