@@ -7,6 +7,14 @@ function [cost, tau, D_tau_w, D_cost_w, D_tau_wc, D_cost_wc] = est_H(x, k, M, dy
 % grad_compute: if gradient reaches final step (max look-ahead step)
 % 
 
+% return:
+%           cost R      - expected cost of current stage
+%           tau R^{n_A} - CRM of each action
+%           D_tau_w     - (M x n_A) col j => D_tau[uj]_w
+%           D_cost_w    - D_gtilda_w
+%           D_tau_wc    - col j => D_tau[uj]_c
+%           D_cost_wc   - D_gtilda_c
+
 %% 
 action_space = u_disc{k+1};
 

@@ -113,10 +113,10 @@ wc_initial = [0.029449850218653
 
 %% Outliers
 
-%compute log likelihood to find outliers
+%compute log likelihood to find outliers under initial param r,c
 l_array = compute_log_like(1:numExps,w_initial, wc_initial, A, b, dynamics, disturbances, data, u_disc, beta, par, LP_sol, LP_prob);
 close all;
-plot(1:numExps,l_array);
+plot(1:numExps,l_array, 'o');
 
 %keyboard;
 %Exps = [1,3:28,30:43];
@@ -130,6 +130,7 @@ w_f = w_initial; wc_f = wc_initial;
 
 while (delta_l > delta_l_eps)
     
+    % mask: (1/0, 1/0) indicates whether to update r,c
     res = subgradientdescent(mask,Exps,w_initial, wc_initial, A, b, dynamics, disturbances, data, u_disc, beta, alpha, T, P_proj, par, LP_sol, LP_prob);
     
     %net change (use for convergence test)
@@ -149,6 +150,8 @@ while (delta_l > delta_l_eps)
     end
 end
     
+hold on; plot(1:numExps,l_array, 'x'); legend('initial', 'optimized');
+
 % Recovered polytope
 P_simp = Polyhedron('V', eye(L));
 P_w = Polyhedron('A', A, 'b', b-w_f) & P_simp;

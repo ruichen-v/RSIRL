@@ -1,4 +1,6 @@
-function res = subgradientdescent(mask,Idx_do,w_0, w_c_0, A, b, dynamics, disturbances, data, u_disc, beta, alpha, T, P_proj, par, LP_sol, LP_prob)
+function res = subgradientdescent(mask,Idx_do,w_0, w_c_0, A, b, dynamics,...
+            disturbances, data, u_disc, beta, alpha, T, P_proj, par, LP_sol, LP_prob)
+        % T: gradient ascent iterations
 %% parameters
 n = par(1); L = par(3); N = par(4); K = par(5);
 x_expert = data.x; 
@@ -32,7 +34,7 @@ for t=1:T
     P_w_data = struct('A',A,'b',b-w);
     
     %compute gradient of log-likelihood
-    parfor j=1:numExps
+    for j=1:numExps
         i = Idx_do(j);
         x_obs = x_expert(:,(i-1)*K+1); 
         counter = counters(i); % indicates if robot on left or right lane
@@ -85,7 +87,7 @@ for t=1:T
         fprintf('%f, ', adv_w);
         bt_count = bt_count + 1;
     end
-    if (adv_w < 0)
+    if (adv_w < 0) % subgradient discarded
         w_new = w;
     end
     fprintf('\n');
@@ -111,7 +113,7 @@ for t=1:T
         fprintf('%f, ', adv_wc);
         bt_count = bt_count + 1;
     end
-    if (adv_wc < 0)
+    if (adv_wc < 0) % subgradient discarded
         w_c_new = wc;
     end
     fprintf('\n'); 
